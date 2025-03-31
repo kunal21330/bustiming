@@ -10,9 +10,6 @@
             font-family: Arial, sans-serif;
             text-align: center;
         }
-        h2{
-            text-color: red;
-        }
         .container {
             width: 80%;
             margin: auto;
@@ -41,12 +38,15 @@
             font-size: 16px;
             padding: 8px;
         }
+        #warning{
+            font-color:red;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Bus Stop Timings</h1>
-        <h3>Timings effective from 02/04/2025.</h3>
+        <p id ="warning" >Timings effective from 02/04/2025</p>
         <label for="busSelector">Select Bus:</label>
         <select id="busSelector" onchange="loadBusData()">
             <option value="senior1">HR55X 9051 (senior market)</option>
