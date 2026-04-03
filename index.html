@@ -2,129 +2,134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bus Stop Timings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bus Timing Finder</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             text-align: center;
-            background: #f4f4f4;
+            background: #f4f7f6;
+            margin: 0;
+            padding: 10px; /* Reduced padding for more horizontal space */
         }
         .container {
-            width: 90%;
-            margin: auto;
-        }
-        h1 {
-            margin-top: 20px;
-        }
-        /* 🔹 Bus buttons */
-        .bus-buttons {
-            margin-top: 20px;
-        }
-        .bus-buttons button {
-            margin: 8px;
-            padding: 12px 20px;
-            font-size: 16px;
-            border: none;
-            border-radius: 6px;
-            background-color: #2c3e50;
-            color: white;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .bus-buttons button:hover {
-            background-color: #1abc9c;
-        }
-        .bus-section {
-            display: none; /* hidden until selected */
-            margin: 25px 0;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        h2 {
-            background-color: #2c3e50;
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        table {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
+            max-width: 500px;
+            margin: 10px auto;
+            background: white;
+            padding: 20px 12px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
         }
-        th, td {
-            border: 1px solid black;
+        h1 { color: #2c3e50; font-size: 1.3rem; margin-bottom: 15px; }
+
+        /* 🔹 Fixed Mobile Search Bar (Prevents Overflow) */
+        .search-bar-wrapper {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            border: 1px solid #dfe1e5;
+            border-radius: 50px;
+            padding: 2px 4px 2px 12px; /* Tightened padding */
+            width: 100%;
+            overflow: hidden; /* Contains children */
+        }
+
+        input[type="text"] {
+            flex: 1; /* Takes remaining space */
+            min-width: 0; /* CRITICAL: Allows input to shrink below its default size */
+            border: none;
+            outline: none;
+            padding: 10px 0;
+            font-size: 16px;
+            background: transparent;
+            color: #202124;
+        }
+
+        .mic-icon-btn {
+            flex-shrink: 0; /* Prevents mic from squishing */
+            background: none;
+            border: none;
+            cursor: pointer;
             padding: 8px;
-            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
-        th {
+        .material-icons.google-mic { color: #4285f4; font-size: 24px; }
+
+        .search-btn {
+            flex-shrink: 0; /* Prevents button from squishing or overflowing */
             background-color: #2c3e50;
             color: white;
+            border: none;
+            padding: 10px 16px; /* Slightly smaller for mobile */
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            -webkit-tap-highlight-color: transparent;
         }
-        #searchInput {
-            display: none; /* shown only when a bus is selected */
-            margin: 15px 0;
-            padding: 10px;
-            width: 60%;
-            border:1px solid black;
+
+        /* 🔹 Phone-Friendly Stickers */
+        .result-area { margin-top: 20px; text-align: left; display: none; }
+        
+        .data-card {
+            background: #f8f9fa;
+            border-left: 6px solid #1abc9c;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        #warning{
-            color:red;
+
+        .display-time { 
+            color: #1abc9c; 
+            font-size: 1.2rem; 
+            font-weight: 800; 
+            margin: 0;
+            flex-shrink: 0;
         }
-        .footer {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #2c3e50;
-            color: white;
-            text-align: center;
+
+        .display-name { 
+            color: #2c3e50; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            margin: 0;
+            line-height: 1.2;
+            word-break: break-word;
         }
+
+        #status { color: #95a5a6; font-size: 0.8rem; margin-top: 10px; min-height: 18px; }
+        .footer { margin-top: 30px; color: #bdc3c7; font-size: 0.7rem; }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h1>Bus Stop Timings</h1>
-        <p id="warning">Timings effective from 01/04/2026</p>
+        <h1>Bus Timing Finder</h1>
 
-        <!-- 🔹 Bus Buttons -->
-        <div class="bus-buttons" id="busButtons">
-            <button onclick="showBus('senior1')">HR39C 5612</button>
-            <button onclick="showBus('senior2')">HR37E 2772</button>
-            <button onclick="showBus('junior')">HR55X 9051</button>
+        <div class="search-bar-wrapper">
+            <input type="text" id="studentSearch" placeholder="Student name..." autocomplete="off" onkeypress="handleKeyPress(event)">
+            
+            <button class="mic-icon-btn" id="micBtn" onclick="startVoiceSearch(event)">
+                <span class="material-icons google-mic">mic</span>
+            </button>
+            
+            <button class="search-btn" onclick="searchStudent()">Search</button>
         </div>
 
-        <!-- 🔹 Search (only visible after selecting a bus) -->
-        <input type="text" id="searchInput" placeholder="Search by stop or name..." onkeyup="filterTable()">
-
-        <!-- 🔹 Bus Sections -->
-        <div id="senior1" class="bus-section">
-            <h2>HR39C 5612 (senior market)</h2>
-            <table>
-                <thead><tr><th>Bus Stop</th><th>Name</th><th>Time</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div id="senior2" class="bus-section">
-            <h2>HR37E 2772 (senior outskirts)</h2>
-            <table>
-                <thead><tr><th>Bus Stop</th><th>Name</th><th>Time</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
-
-        <div id="junior" class="bus-section">
-            <h2>HR55X9051 (junior)</h2>
-            <table>
-                <thead><tr><th>Bus Stop</th><th>Name</th><th>Time</th></tr></thead>
-                <tbody></tbody>
-            </table>
-        </div>
+        <div id="status"></div>
+        <div id="resultsArea" class="result-area"></div>
     </div>
 
     <div class="footer">
-        &copy; 2025 Bus Stop Timings. All rights reserved.
+        &copy; 2026 School Transport | Hansi
     </div>
 
     <script>
@@ -132,65 +137,89 @@
         const sheetName = "Sheet1";
         const apiKey = "AIzaSyBdEjBRnfEgszKKfMohT4NbnASeHhtkv_I";
 
-        async function fetchBusData() {
-            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}?key=${apiKey}`;
+        function handleKeyPress(e) { if (e.key === 'Enter') { e.target.blur(); searchStudent(); } }
+
+        function startVoiceSearch(event) {
+            event.preventDefault();
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) { alert("Use Chrome for voice features."); return; }
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'en-IN'; 
+            const micBtn = document.getElementById('micBtn');
+            recognition.onstart = () => { micBtn.style.opacity = "0.5"; };
+            recognition.onresult = (e) => {
+                document.getElementById('studentSearch').value = e.results[0][0].transcript.replace(/\.$/g, '');
+                searchStudent();
+            };
+            recognition.onend = () => { micBtn.style.opacity = "1"; };
+            recognition.start();
+        }
+
+        // Fuzzy Logic Helper
+        function calculateSimilarity(s1, s2) {
+            let longer = s1.toLowerCase(), shorter = s2.toLowerCase();
+            if (s1.length < s2.length) { [longer, shorter] = [shorter, longer]; }
+            if (longer.length === 0) return 1.0;
+            const editDistance = (a, b) => {
+                const costs = [];
+                for (let i = 0; i <= a.length; i++) {
+                    let lastValue = i;
+                    for (let j = 0; j <= b.length; j++) {
+                        if (i === 0) costs[j] = j;
+                        else if (j > 0) {
+                            let newValue = costs[j - 1];
+                            if (a.charAt(i - 1) !== b.charAt(j - 1))
+                                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+                            costs[j - 1] = lastValue;
+                            lastValue = newValue;
+                        }
+                    }
+                    if (i > 0) costs[b.length] = lastValue;
+                }
+                return costs[b.length];
+            };
+            return (longer.length - editDistance(longer, shorter)) / parseFloat(longer.length);
+        }
+
+        async function searchStudent() {
+            const query = document.getElementById("studentSearch").value.trim().toLowerCase();
+            const resultsArea = document.getElementById("resultsArea");
+            const status = document.getElementById("status");
+
+            if (query.length < 3) { status.innerText = "Enter 3+ letters."; return; }
+            status.innerText = "Searching...";
+            resultsArea.style.display = "none";
+
             try {
+                const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A:Z?key=${apiKey}`;
                 const response = await fetch(url);
                 const data = await response.json();
-                return parseSheetData(data.values);
-            } catch (error) {
-                console.error("Error fetching Google Sheet data:", error);
-                return {};
-            }
-        }
+                if (!data.values) { status.innerText = "No data."; return; }
 
-        function parseSheetData(values) {
-            if (!values || values.length === 0) return {};
-            const busData = {};
-            values.slice(1).forEach(row => {
-                const [bus, stop, name, time] = row;
-                if (!busData[bus]) busData[bus] = [];
-                busData[bus].push({ stop, name, time });
-            });
-            return busData;
-        }
+                const rows = data.values.slice(1);
+                const matches = rows.filter(row => {
+                    const fullName = (row[2] || "").toString().toLowerCase().trim();
+                    const nameParts = fullName.split(/\s+/);
+                    if (fullName.includes(query)) return true;
+                    return nameParts.some(part => calculateSimilarity(query, part) > 0.7);
+                });
 
-        async function showBus(busId) {
-            // hide all bus sections
-            document.querySelectorAll(".bus-section").forEach(section => {
-                section.style.display = "none";
-            });
-
-            const busData = await fetchBusData();
-            if (!busData[busId]) return;
-
-            const section = document.getElementById(busId);
-            const tbody = section.querySelector("tbody");
-            tbody.innerHTML = "";
-            busData[busId].forEach(entry => {
-                let row = `<tr><td>${entry.stop}</td><td>${entry.name}</td><td>${entry.time}</td></tr>`;
-                tbody.innerHTML += row;
-            });
-
-            section.style.display = "block";
-            document.getElementById("searchInput").style.display = "inline-block";
-        }
-
-        function filterTable() {
-            const input = document.getElementById("searchInput").value.toLowerCase();
-            const visibleSection = document.querySelector(".bus-section:not([style*='display: none'])");
-            if (!visibleSection) return;
-            const rows = visibleSection.querySelectorAll("tbody tr");
-
-            rows.forEach(row => {
-                let stop = row.cells[0].textContent.toLowerCase();
-                let name = row.cells[1].textContent.toLowerCase();
-                row.style.display = (stop.includes(input) || name.includes(input)) ? "" : "none";
-            });
+                if (matches.length === 0) {
+                    status.innerText = "No student found.";
+                } else {
+                    status.innerText = "";
+                    resultsArea.innerHTML = "";
+                    matches.forEach(match => {
+                        resultsArea.innerHTML += `
+                            <div class="data-card">
+                                <p class="display-time">${match[3]}</p>
+                                <p class="display-name">${match[2]}</p>
+                            </div>`;
+                    });
+                    resultsArea.style.display = "block";
+                }
+            } catch (error) { status.innerText = "Error."; }
         }
     </script>
 </body>
 </html>
-
-
-
